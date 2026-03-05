@@ -1,0 +1,33 @@
+{
+  "whyChooseUs": [
+    {
+      "id": "c556b97d-67df-4a89-ba4d-4d450436e731",
+      "title": "DevSecOps Automation",
+      "description": "CI/CD-ready tools: SAST, DAST, SCA, RASP & threat modeling for scale.",
+      "icon": "shield"
+    },
+    {
+      "id": "afd4ca8c-ea0d-4378-9ec5-2845ffa9f234",
+      "title": "Expert-Led Testing",
+      "description": "OWASP-based web, API, and mobile security testing by real security engineers",
+      "icon": "users"
+    }
+  ],
+  "services": [
+    {
+      "id": "4c93e912-6e07-424c-8879-15b403523110",
+      "title": "GRC/Risk Advisory",
+      "desc": "Governance, Risk, and Compliance advisory services",
+      "icon": "clock",
+      "subServices": [
+        {
+          "id": "6de73d21-6622-46b6-b659-dd91880bc31a",
+          "title": "Web Application and Services Security Assessment",
+          "desc": "Identify and mitigate vulnerabilities in web applications and services."
+        }
+      ]
+    }
+  ],
+  "training": [],
+  "contactus": {}
+}
