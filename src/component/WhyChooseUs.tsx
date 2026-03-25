@@ -5,6 +5,7 @@ import { CheckCircle, ShieldCheck, Clock, Users, Plus, X } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import type { RootState } from "@/store/store";
+import Swal from "sweetalert2";
 
 interface FeatureItem {
   id: string;
@@ -32,8 +33,11 @@ const ICON_MAP: Record<string, React.ElementType> = {
 };
 
 /* ---------------- SKELETON ---------------- */
-const FeatureSkeleton = () => (
-  <div className="rounded-2xl p-8 bg-zinc-900/60 border border-[#1F3D2B] animate-pulse">
+const FeatureSkeleton = ({ keyProp }: { keyProp: number }) => (
+  <div
+    key={keyProp}
+    className="rounded-2xl p-8 bg-zinc-900/60 border border-[#1F3D2B] animate-pulse"
+  >
     <div className="h-14 w-14 bg-zinc-700 rounded-xl mb-5" />
     <div className="h-4 bg-zinc-700 rounded w-3/4 mb-3" />
     <div className="h-3 bg-zinc-700 rounded w-full" />
@@ -49,14 +53,13 @@ const WhyChooseUs = () => {
 
   const [showForm, setShowForm] = useState(false);
   const [saving, setSaving] = useState(false);
-
   const [newCard, setNewCard] = useState({ title: "", description: "", icon: "shield" });
 
   /* ---------------- LOAD DATA ---------------- */
   const loadContent = async () => {
     try {
       setIsLoading(true);
-      const token = localStorage.getItem("admin_token"); // read token if admin
+      const token = localStorage.getItem("admin_token");
       const res = await fetch("/api/content", {
         headers: token ? { Authorization: `Bearer ${token}` } : undefined,
       });
@@ -92,23 +95,11 @@ const WhyChooseUs = () => {
       const token = localStorage.getItem("admin_token");
       if (!token) throw new Error("Unauthorized");
 
-      const res = await fetch("/api/content", {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      if (!res.ok) throw new Error();
-
-      const data: ContentResponse = await res.json();
-
       const featureWithId: RawFeature = {
         id: crypto.randomUUID(),
         title: newCard.title.trim(),
         description: newCard.description.trim(),
         icon: newCard.icon,
-      };
-
-      const updated = {
-        ...data,
-        whyChooseUs: [...(data.whyChooseUs ?? []), featureWithId],
       };
 
       const save = await fetch("/api/content", {
@@ -117,7 +108,7 @@ const WhyChooseUs = () => {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify(updated),
+        body: JSON.stringify({ whyChooseUs: [featureWithId] }),
       });
 
       if (!save.ok) throw new Error();
@@ -143,53 +134,82 @@ const WhyChooseUs = () => {
 
   /* ---------------- DELETE FEATURE ---------------- */
   const deleteFeature = async (id: string) => {
-    if (!confirm("Delete this feature?")) return;
+    const feature = features.find(f => f.id === id);
+    if (!feature) return;
 
-    try {
-      const token = localStorage.getItem("admin_token");
-      if (!token) throw new Error("Unauthorized");
+    const { value: userInput } = await Swal.fire({
+      title: "Confirm Deletion",
+      text: `To delete this feature, please type "${feature.title}":`,
+      input: "text",
+      inputPlaceholder: feature.title,
+      showCancelButton: true,
+      confirmButtonColor: "#d33",
+      cancelButtonColor: "#3085d6",
+      confirmButtonText: "Delete Feature",
+      background: "#18181b",
+      color: "#fff",
+      inputValidator: (value) => {
+        if (!value) return "Title is required!";
+        if (value !== feature.title) return "Title mismatch!";
+      }
+    });
 
-      const res = await fetch("/api/content", {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      if (!res.ok) throw new Error();
+    if (userInput) {
+      try {
+        const token = localStorage.getItem("admin_token");
+        if (!token) throw new Error("Unauthorized");
 
-      const data: ContentResponse = await res.json();
-      const updatedFeatures = data.whyChooseUs?.filter((f) => f.id !== id) ?? [];
+        const res = await fetch(`/api/content?featureId=${id}&title=${encodeURIComponent(userInput)}`, {
+          method: "DELETE",
+          headers: { Authorization: `Bearer ${token}` },
+        });
 
-      const save = await fetch("/api/content", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({ ...data, whyChooseUs: updatedFeatures }),
-      });
-      if (!save.ok) throw new Error();
+        if (!res.ok) {
+          const data = await res.json();
+          throw new Error(data.error || "Failed to delete feature");
+        }
 
-      setFeatures((prev) => prev.filter((f) => f.id !== id));
-    } catch {
-      alert("Failed to delete feature");
+        setFeatures((prev) => prev.filter((f) => f.id !== id));
+        Swal.fire({
+          title: "Deleted!",
+          text: "Feature has been removed.",
+          icon: "success",
+          background: "#18181b",
+          color: "#fff",
+          confirmButtonColor: "#00FF66"
+        });
+      } catch (err: any) {
+        Swal.fire({
+          title: "Error!",
+          text: err.message || "Failed to delete feature",
+          icon: "error",
+          background: "#18181b",
+          color: "#fff"
+        });
+      }
     }
   };
 
   return (
     <section id="why-choose-us" className="py-24 bg-black border-t border-[#1F3D2B]">
       <div className="max-w-7xl mx-auto px-6">
-        <h2 className="text-4xl font-bold text-center text-white mb-14">
+              <h2 className="text-3xl sm:text-4xl mb-4 font-bold text-center bg-gradient-to-r from-[#B6FF00] to-[#00FF66] bg-clip-text text-transparent">
+
           Why{" "}
-          <span className="bg-gradient-to-r from-[#B6FF00] to-[#00FF66] bg-clip-text text-transparent">
+          {/* <span className="bg-gradient-to-r from-[#B6FF00] to-[#00FF66] bg-clip-text text-transparent"> */}
             Choose Us
-          </span>
+          {/* </span> */}
         </h2>
 
         {error && <p className="text-center text-red-400 mb-8">{error}</p>}
 
         {/* GRID */}
         <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-8">
+          {/* Skeleton Loader */}
           {isLoading &&
-            Array.from({ length: 4 }).map((_, i) => <FeatureSkeleton key={i} />)}
+            Array.from({ length: 4 }).map((_, i) => <FeatureSkeleton keyProp={i} key={i} />)}
 
+          {/* Features */}
           {!isLoading &&
             features.map((f, i) => {
               const Icon = f.icon;
@@ -224,8 +244,10 @@ const WhyChooseUs = () => {
               );
             })}
 
+          {/* Add Card */}
           {isAdmin && !isLoading && (
             <motion.div
+              key="add-card"
               whileHover={{ y: -6, scale: 1.03 }}
               onClick={() => setShowForm(true)}
               className="flex flex-col items-center justify-center rounded-2xl p-8

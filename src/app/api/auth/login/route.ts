@@ -9,16 +9,24 @@ export async function POST(req: Request) {
     const { email, password } = await req.json();
 
     if (email !== ADMIN_EMAIL || password !== ADMIN_PASSWORD) {
-      return NextResponse.json({ error: "Invalid email or password" }, { status: 401 });
+      return NextResponse.json(
+        { error: "Invalid email or password" },
+        { status: 401 }
+      );
     }
 
-    // Generate token for admin
-    const token = signToken({ role: "admin", email });
-    // console.log(token)
+  const token = signToken({ role: "admin", email });
+    console.log(token)
+    return NextResponse.json({
+      success: true,
+      token,
+      role: "admin",
+    });
 
-    return NextResponse.json({ success: true, token, role: "admin" });
-  } catch (err) {
-    console.error(err);
-    return NextResponse.json({ error: "Login failed" }, { status: 500 });
+  } catch (error) {
+    return NextResponse.json(
+      { error: "Login failed" },
+      { status: 500 }
+    );
   }
 }

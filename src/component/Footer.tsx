@@ -12,14 +12,14 @@ const Footer = () => {
       <div className="mx-auto max-w-screen-xl px-5 py-5">
 
         {/* 5 Columns Layout */}
-        <div className="grid gap-4 md:grid-cols-5">
+        <div className="grid gap-2 md:grid-cols-5">
 
           {/* Brand */}
           <div>
-            <h2 className="text-lg font-extrabold mb-2 bg-gradient-to-r from-[#B6FF00] to-[#00FF66] bg-clip-text text-transparent">
+            <h2 className="text-lg font-extrabold mb-4 bg-gradient-to-r from-[#B6FF00] to-[#00FF66] bg-clip-text text-transparent">
               FIXI SECURITY
             </h2>
-            <p className="text-xs text-gray-400">
+            <p className="text-lx text-gray-400">
               Enterprise-grade cybersecurity solutions to protect your digital infrastructure.
             </p>
           </div>
@@ -28,31 +28,28 @@ const Footer = () => {
           <div>
             <button
               onClick={() => setOpen(!open)}
-              className="flex items-center gap-1 mb-2 text-xs font-semibold uppercase text-[#B6FF00]"
+              className="flex items-center gap-1 mb-4 text-lg font-semibold uppercase text-[#B6FF00]"
             >
               Quick Links
-              <ChevronDown
-                size={14}
-                className={`transition-transform duration-300 ${open ? "rotate-180" : ""}`}
-              />
             </button>
 
-            {open && (
-              <ul className="space-y-1 text-xs text-gray-400">
+            
+              <ul className="space-y-1 text-ls text-gray-400">
+                <li><Link href="/" className="hover:text-white">Home</Link></li>
                 <li><Link href="/aboutus" className="hover:text-white">About Us</Link></li>
                 <li><Link href="/services" className="hover:text-white">Services</Link></li>
                 <li><Link href="/training" className="hover:text-white">Training</Link></li>
                 <li><Link href="/contact" className="hover:text-white">Contact</Link></li>
               </ul>
-            )}
+            
           </div>
 
           {/* Resources */}
           <div>
-            <h3 className="mb-2 text-xs font-semibold uppercase text-[#B6FF00]">
+            <h3 className="mb-4 text-lg font-semibold uppercase text-[#B6FF00]">
               Resources
             </h3>
-            <ul className="space-y-1 text-xs text-gray-400">
+            <ul className="space-y-1 text-ls text-gray-400">
               <li><Link href="/docs" className="hover:text-white">Docs</Link></li>
               <li><Link href="/blog" className="hover:text-white">Blog</Link></li>
             </ul>
@@ -61,30 +58,30 @@ const Footer = () => {
 
           {/* Social */}
           <div>
-            <h3 className="mb-2 text-xs font-semibold uppercase text-[#B6FF00]">
+            <h3 className="mb-4 text-lg font-semibold uppercase text-[#B6FF00]">
               Follow Us
             </h3>
             <div className="flex gap-3">
               <a href="https://www.facebook.com/share/16CRhGYRXm/" target="_blank" rel="noopener noreferrer">
-                <Facebook size={16} />
+                <Facebook size={18} />
               </a>
               <a href="https://x.com/Fixi_Security" target="_blank" rel="noopener noreferrer">
-                <Twitter size={16} />
+                <Twitter size={18} />
               </a>
               <a href="https://www.linkedin.com/showcase/fixi-security/" target="_blank" rel="noopener noreferrer">
-                <Linkedin size={16} />
+                <Linkedin size={18} />
               </a>
               <a href="https://www.instagram.com/fixi_security?igsh=dmxpN3J0eDNnZmM2" target="_blank" rel="noopener noreferrer">
-                <Instagram size={16} />
+                <Instagram size={18} />
               </a>
             </div>
           </div>
                {/* Legal */}
           <div>
-            <h3 className="mb-2 text-xs font-semibold uppercase text-[#B6FF00]">
+            <h3 className="mb-4 text-lg font-semibold uppercase text-[#B6FF00]">
               Legal
             </h3>
-            <ul className="space-y-1 text-xs text-gray-400">
+            <ul className="space-y-1 text-ls text-gray-400">
               <li>
                 <Link href="/privacy-policy" className="hover:text-white">
                   Privacy Policy
@@ -102,7 +99,7 @@ const Footer = () => {
 
         <div className="my-4 h-px bg-gradient-to-r from-transparent via-[#00FF66] to-transparent opacity-40" />
 
-        <p className="text-center text-xs text-gray-500">
+        <p className="text-center text-ls text-gray-500">
           © 2026 Fixi Security. All rights reserved.
         </p>
 

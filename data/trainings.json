@@ -1,0 +1,29 @@
+[
+  {
+    "title": "Extreme Web Penetration Testing",
+    "subtitle": "Advanced web penetration testing training",
+    "benefits": [
+      "Practical skills",
+      "Real-world scenarios",
+      "Expert guidance"
+    ],
+    "features": [
+      "Hands-on Training",
+      "Advanced Techniques",
+      "Real Applications"
+    ],
+    "details": "Comprehensive training in advanced web penetration testing techniques, focusing on real-world scenarios.\n\n",
+    "sections": [
+      {
+        "title": "Methodology",
+        "points": [
+          "Hands-on Training: Provide practical experience Advanced Techniques: Teach advanced methods for identifying and exploiting vulnerabilities.",
+          "Real Applications: Use real-world applications for training exercises.with penetration testing tools and techniques.",
+          ""
+        ]
+      }
+    ],
+    "image": "/uploads/dccfeacb-0867-4d63-b4d7-b4307b47c686-apisecur.png",
+    "id": "41592eb1-47f4-4531-a5d4-9b2a5a528d18"
+  }
+]

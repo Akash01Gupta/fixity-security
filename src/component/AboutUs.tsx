@@ -25,14 +25,9 @@ export default function AboutUsPage() {
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.7 }}
-          className="text-4xl md:text-6xl font-bold mb-6"
+          className="text-3xl sm:text-4xl md:text-6xl font-bold mb-6 text-center bg-gradient-to-r from-[#B6FF00] to-[#00FF66] bg-clip-text text-transparent"
         >
-
-          <span className="bg-gradient-to-r from-[#B6FF00] to-[#00FF66] bg-clip-text text-transparent">
-            About{" "}
-            Fixity Security
-          </span>
-
+          About Fixity Security
         </motion.h1>
         <span className="block max-w-6xl mx-auto mt-5 text-gray-000 text-lg">
           Leading the Way in Cybersecurity Excellence</span>
@@ -40,41 +35,6 @@ export default function AboutUsPage() {
           Protecting businesses is not just our service — it’s our responsibility.
         </p>
       </div>
-
-      {/* ================= OUR STORY =================
-      <div className="py-24 px-6 max-w-6xl mx-auto">
-        <motion.h2
-          initial={{ opacity: 0, y: 25 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.6 }}
-          className="text-3xl font-bold mb-8"
-        >
-          Our Story
-        </motion.h2>
-
-        <div className="space-y-6 text-gray-400 leading-relaxed text-lg">
-          <p>
-            Fixity Security was founded with a simple belief — businesses deserve
-            peace of mind in a world filled with digital threats. What started
-            as a small team of security enthusiasts has grown into a trusted
-            cybersecurity partner for organizations worldwide.
-          </p>
-
-          <p>
-            We’ve seen firsthand how cyberattacks can disrupt operations,
-            damage reputations, and cost millions. That’s why we built Fixity
-            Security around proactive defense, continuous monitoring, and
-            strategic security planning.
-          </p>
-
-          <p>
-            Today, we work closely with our clients — not just as service
-            providers, but as long-term security partners dedicated to
-            safeguarding their digital future.
-          </p>
-        </div>
-      </div> */}
 
       {/* ================= MISSION & VISION CARDS ================= */}
       <div className="py-24 bg-zinc-900/40 border-y border-[#1F3D2B] px-6">
