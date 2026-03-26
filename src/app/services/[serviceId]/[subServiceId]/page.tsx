@@ -13,25 +13,26 @@ const Section: React.FC<any> = ({ section }) => {
       initial={{ opacity: 0, y: 30 }}
       whileInView={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5 }}
-      className="bg-[#0B1220] border border-[#1F3D2B] rounded-[2.5rem] p-8 space-y-6 hover:border-[#00FF66]/40 transition-all shadow-xl group"
+      className="pb-8 space-y-4 group transition-all"
     >
       <div className="flex items-center gap-4">
-        <div className="p-3 bg-[#00FF66]/5 rounded-xl border border-[#00FF66]/10 group-hover:bg-[#00FF66]/10 transition-colors">
+        {/* <div className="p-3 bg-[#00FF66]/5 rounded-xl border border-[#00FF66]/10 group-hover:bg-[#00FF66]/10 transition-colors">
           <Activity size={24} className="text-[#00FF66]" />
-        </div>
-        {section.title && <h3 className="text-2xl font-black italic uppercase tracking-tighter text-white">{section.title}</h3>}
+        </div> */}
+        {section.title && <h3 className="text-lg font-black uppercase tracking-tighter text-white">{section.title}</h3>}
       </div>
-      {section.description && <p className="text-xl text-[#cbd5f5] font-medium italic leading-relaxed opacity-80">{section.description}</p>}
+      {section.description && <p className="text-xl text-[#cbd5f5] font-medium leading-relaxed opacity-80">{section.description}</p>}
       {section.points?.length > 0 && (
         <ul className="space-y-4">
           {section.points.map((p: string, i: number) => (
-            <li key={i} className="flex gap-3 text-lg text-zinc-400 font-bold italic group-hover:text-white transition-colors">
+            <li key={i} className="flex gap-3 text-lg text-zinc-400 font-bold group-hover:text-white transition-colors">
               <span className="w-1.5 h-1.5 bg-[#00FF66] mt-2.5 rounded-full shadow-[0_0_10px_#00FF66]"></span>
               {p}
             </li>
           ))}
         </ul>
       )}
+      
     </motion.div>
   )
 }
@@ -193,11 +194,11 @@ export default function SubServicePage() {
                   : "/services/cyber_security_abstract_1_1773654503262.png"
               }
               alt={subService.title}
-              className="absolute inset-0 w-full h-full object-cover grayscale brightness-90 group-hover:grayscale-0 group-hover:brightness-100 transition-all duration-700"
+              className="absolute inset-0 w-full h-full object-cover"
             />
 
             {/* Overlay */}
-            <div className="absolute inset-0 bg-gradient-to-tr from-[#00FF66]/10 to-transparent pointer-events-none" />
+            <div className="absolute inset-0 " />
 
             {/* Icon */}
 
@@ -206,7 +207,6 @@ export default function SubServicePage() {
         </div>
 
         {/* -------- ROW 2: DETAILS SECTION -------- */}
-        {/* <div className="space-y-10 mb-2  rounded-2xl border"> */}
 
         {/* Details Content (Handling both 'desc' and 'details' fields) */}
         {(subService.details?.length > 0 || subService.desc) && (
@@ -221,19 +221,21 @@ export default function SubServicePage() {
                 ? subService.details
                 : subService.desc}
             </p>
-
+            {subService.sections?.length > 0 && (
+              <div className="mt-0 space-y-8 border-t border-white/5 pt-0">
+                {/* <h3 className="text-xl font-black tracking-tight text-[#00FF66] uppercase">
+                   Methodology
+                </h3> */}
+                <div className=" lg:grid-cols-3 gap-8">
+                  {subService.sections.map((sec: any, i: number) => (
+                    <Section key={i} section={sec} />
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
         )}
 
-        {/* Dynamic Methodology Sections */}
-        {subService.sections?.length > 0 && (
-          <div className="rounded-2xl border grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {subService.sections.map((sec: any, i: number) => (
-              <Section key={i} section={sec} />
-            ))}
-          </div>
-        )}
-        {/* </div> */}
 
 
         {/* FINAL CTA */}

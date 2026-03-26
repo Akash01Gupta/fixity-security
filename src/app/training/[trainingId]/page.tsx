@@ -16,19 +16,19 @@ const Section: React.FC<any> = ({ section }) => {
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true }}
       transition={{ duration: 0.5 }}
-      className="bg-[#0B1220] border border-[#1F3D2B] rounded-xl p-6 space-y-4 hover:border-[#00FF66]/50 transition-colors"
+      className="pb-8 space-y-4 group transition-all"
     >
       {section.title && (
-        <h3 className="text-2xl font-semibold text-white">{section.title}</h3>
+        <h3 className="text-lg font-black uppercase tracking-tighter text-white">{section.title}</h3>
       )}
       {section.subtitle && (
         <p className="text-[#94a3b8] text-lg">{section.subtitle}</p>
       )}
       {section.description && (
-        <p className="text-[#cbd5f5] text-base">{section.description}</p>
+        <p className="text-xl text-[#cbd5f5] font-medium leading-relaxed opacity-80">{section.description}</p>
       )}
       {section.points?.length > 0 && (
-        <ul className="space-y-2 pl-5">
+        <ul className="space-y-4">
           {section.points.map((point: string, i: number) => (
             <motion.li
               key={i}
@@ -36,9 +36,9 @@ const Section: React.FC<any> = ({ section }) => {
               whileInView={{ opacity: 1, x: 0 }}
               viewport={{ once: true }}
               transition={{ delay: i * 0.1 }}
-              className="flex gap-2 text-[#cbd5f5] items-start"
+              className="flex gap-3 text-lg text-zinc-400 font-bold group-hover:text-white transition-colors"
             >
-              <span className="w-3 h-3 bg-[#00FF66] rounded-full mt-1"></span>
+              <span className="w-1.5 h-1.5 bg-[#00FF66] mt-2.5 rounded-full shadow-[0_0_10px_#00FF66]"></span>
               <span>{point}</span>
             </motion.li>
           ))}
@@ -144,8 +144,8 @@ export default function TrainingSubPage() {
             transition={{ duration: 0.6 }}
             className="space-y-3"
           >
-            <h1 className="text-4xl font-bold">{training.title}</h1>
-            <p className="text-xl mb-4 text-[#00FF66]">{training.subtitle}</p>
+            <h1 className="text-xl font-bold">{training.title}</h1>
+            <p className="text-lg mb-4 text-[#00FF66]">{training.subtitle}</p>
           </motion.div>
 
           {/* ---------------- Top Row: Features + Benefits | Image ---------------- */}
@@ -184,47 +184,36 @@ export default function TrainingSubPage() {
             </motion.div>
           </div>
 
-          {/* ---------------- Bottom Row: Details + Sections | Image ---------------- */}
-          <div className="flex flex-col lg:flex-row gap-6">
-            {/* Left Column: Details + Sections (50%) */}
+          {/* ---------------- Bottom Row: Details SECTION ---------------- */}
+          {(training.details?.length > 0 || training.desc) && (
             <motion.div
               initial={{ opacity: 0, y: 30 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.6 }}
-              className="flex flex-col gap-6 w-full lg:w-1/2 mt-4 p-8 rounded-2xl border border-[#1F3D2B] bg-[#0B1220]"
+              className="bg-zinc-900/20 backdrop-blur-md p-0 lg:p-12 rounded-2xl border border-white/5 space-y-4"
             >
-              {/* Details */}
-              {training.details && (
-                <div className="space-y-4">
-                  <h3 className="text-2xl font-semibold text-white">Details</h3>
-                  <p className="text-[#cbd5f5] text-lg leading-relaxed">
-                    {training.details}
-                  </p>
-                </div>
-              )}
+              <h3 className="text-xl font-black tracking-tight text-white">
+                Details
+              </h3>
 
-              {/* Sections */}
+              <p className="text-lg text-zinc-300 font-medium leading-relaxed opacity-80 whitespace-pre-wrap">
+                {/* Fallback to training.desc if details is empty */}
+                {typeof training.details === "string" && training.details !== ""
+                  ? training.details
+                  : training.desc}
+              </p>
               {training.sections?.length > 0 && (
-                <div className="space-y-4">
-                  {training.sections.map((section: any, idx: number) => (
-                    <Section key={idx} section={section} />
-                  ))}
+                <div className="mt-0 space-y-8 border-t border-white/5 pt-0">
+                  <div className=" lg:grid-cols-3 gap-8">
+                    {training.sections.map((sec: any, i: number) => (
+                      <Section key={i} section={sec} />
+                    ))}
+                  </div>
                 </div>
               )}
             </motion.div>
-
-            {/* Right Column: Image (50%) */}
-            {/* {training.image && (
-              <div className="w-full lg:w-1/2 h-80 lg:h-auto">
-                <img
-                  src={training.image}
-                  className="w-full h-full object-cover rounded-xl"
-                  alt={training.title}
-                />
-              </div>
-            )} */}
-          </div>
+          )}
         </div>
       </div>
     </section>

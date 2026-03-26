@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import axios from "axios";
 import { useSelector } from "react-redux";
 import type { RootState } from "@/store/store";
-import { Plus, X } from "lucide-react";
+import { ArrowBigRight, ArrowBigRightDashIcon, ArrowRight, ChevronRight, Plus, X, Eye, Calendar } from "lucide-react";
 import { useRouter } from "next/navigation";
 import Swal from "sweetalert2";
 
@@ -17,12 +17,13 @@ interface Blog {
   author: string;
   category: string;
   image: string;
+  views: number | string;
 }
 
 const BlogPage = () => {
   const [blogs, setBlogs] = useState<Blog[]>([]);
   const [loading, setLoading] = useState(true);
-  const [visibleCount, setVisibleCount] = useState(6);
+  const [visibleCount, setVisibleCount] = useState(8);
 
   // Admin stuff
   const role = useSelector((state: RootState) => state.auth.role);
@@ -37,6 +38,7 @@ const BlogPage = () => {
   const [blogAuthor, setBlogAuthor] = useState("");
   const [blogCategory, setBlogCategory] = useState("");
   const [blogDate, setBlogDate] = useState("");
+  const [blogViews, setBlogViews] = useState("");
   const [blogImage, setBlogImage] = useState<File | null>(null);
   const [isSaving, setIsSaving] = useState(false);
 
@@ -70,6 +72,7 @@ const BlogPage = () => {
       formData.append("blog[excerpt]", blogExcerpt.trim());
       formData.append("blog[author]", blogAuthor.trim());
       formData.append("blog[category]", blogCategory.trim());
+      formData.append("blog[views]", blogViews.trim() || "0");
       // date removed, server auto gen
       if (blogImage) formData.append("blog[image]", blogImage);
 
@@ -84,6 +87,7 @@ const BlogPage = () => {
         setBlogAuthor("");
         setBlogCategory("");
         setBlogDate("");
+        setBlogViews("");
         setBlogImage(null);
         await fetchBlogs();
       } else {
@@ -167,7 +171,7 @@ const BlogPage = () => {
           {/* Header Section */}
           <div className="max-w-md mx-auto mb-12 text-center relative">
             <h2 className="text-3xl sm:text-4xl font-bold text-center bg-gradient-to-r from-[#B6FF00] to-[#00FF66] bg-clip-text text-transparent">
-              Our latest blog posts
+              Our Blog Posts
             </h2>
             {isAdmin && (
               <motion.button
@@ -194,43 +198,56 @@ const BlogPage = () => {
                     No blog posts available at the moment.
                   </p>
                 ) : (
-                  blogs.slice(0, visibleCount).map((blog) => (
+                  blogs.slice(0, visibleCount).map((blog, i) => (
                     <motion.div
                       key={blog.id}
-                      initial={{ opacity: 0, y: 20 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ duration: 0.5 }}
-                      className="bg-black border border-gray-300 shadow-sm p-4 rounded-xl relative"
+                      initial={{ opacity: 0, y: 30 }}
+                      whileInView={{ opacity: 1, y: 0 }}
+                      transition={{ duration: 0.8, delay: (i % 4) * 0.1, ease: [0.22, 1, 0.36, 1] }}
+                      whileHover={{ y: -8 }}
+                      viewport={{ once: true }}
+                      onClick={() => router.push(`/blog/${blog.id}`)}
+                      className="group bg-black border border-white/10 shadow-2xl p-6 rounded-[2.5rem] relative cursor-pointer hover:border-[#00FF66]/30 transition-all duration-500"
                     >
                       {isAdmin && (
                         <button
                           onClick={(e) => handleDeleteBlog(e, blog.id)}
-                          className="absolute top-6 right-6 bg-red-500 text-white p-2 rounded-full hover:bg-red-600 transition shadow-lg z-30"
+                          className="absolute -top-1 -right-1 bg-red-500/90 text-white p-3 rounded-full hover:scale-110 active:scale-95 transition-all shadow-xl z-30"
                           title="Delete Blog"
                         >
-                          <X size={16} />
+                          <X size={20} className="stroke-[3]" />
                         </button>
                       )}
-                      <div className="bg-gray-50 aspect-[22/13] rounded-xl overflow-hidden">
-                        <img
-                          src={blog.image || "/services/cyber_security_abstract_1_1773654503262.png"}
+                      <div className="bg-zinc-900 aspect-[1.7] rounded-[1.5rem] overflow-hidden">
+                        <motion.img
+                          src={blog.image ? (blog.image.startsWith("/") ? blog.image : `/${blog.image}`) : "/services/cyber_security_abstract_1_1773654503262.png"}
                           alt={blog.title}
                           className="w-full h-full object-cover"
+                          whileHover={{ scale: 1.1 }}
+                          transition={{ duration: 0.8, ease: "easeOut" }}
                         />
                       </div>
-                      <div className="px-2 mt-6">
-                        <h3 className="text-base font-semibold text-slate-00 mb-3 line-clamp-2">
+                      <div className="mt-8 px-1">
+                        <h3 className="text-[18px] font-bold text-white mb-6 leading-tight tracking-tight group-hover:text-[#00FF66] transition-colors">
                           {blog.title}
                         </h3>
-                        <p className="text-slate-400 text-sm font-medium mb-4">
-                          {blog.date} | By {blog.author}
-                        </p>
-                        <a
-                          href={`/blog/${blog.id}`}
-                          className="inline-block px-4 py-1.5 tracking-wider bg-green-600 hover:bg-green-700 rounded-full text-white text-[13px] font-medium w-fit transition-colors"
-                        >
-                          Learn More
-                        </a>
+
+                        <div className="space-y-3 mb-8">
+                          <div className="flex items-center gap-2.5 text-slate-400 text-[14px] font-medium tracking-tight">
+                            <Calendar size={17} className="text-[#00FF66]" />
+                            {blog.date}
+                            <span className="text-slate-700 font-black ml-1"></span>
+                          </div>
+                          <div className="flex items-center gap-2.5 text-slate-400 text-[14px] font-medium tracking-tight">
+                            <span>By {blog.author}</span>
+                            <span className="text-slate-700 font-black"></span>
+                            <span className="flex items-center gap-1.5"><Eye size={17} className="text-[#00FF66]" /> {blog.views || 0} Views</span>
+                          </div>
+                        </div>
+
+                        <div className="inline-flex items-center gap-3 text-[#00FF66] font-black text-[14px]  tracking-[0.2em] group-hover:gap-5 transition-all duration-500">
+                          LEARN MORE <ChevronRight size={18} className="stroke-[2]" />
+                        </div>
                       </div>
                     </motion.div>
                   ))
@@ -238,23 +255,28 @@ const BlogPage = () => {
               </div>
 
               {/* Load More Button */}
-              {!loading && blogs.length > 0 && (
+              {!loading && blogs.length > 8 && (
                 <motion.div
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.6, delay: 0.8 }}
                   className="mt-4 pt-8 border-t border-zinc-800 text-center"
                 >
-                  <button
-                    onClick={() => setVisibleCount(prev => prev + 6)}
-                    disabled={visibleCount >= blogs.length}
-                    className={`px-8 py-3 mt-4 font-semibold rounded-full transition-colors ${visibleCount >= blogs.length
-                      ? "bg-zinc-800 text-zinc-500 cursor-not-allowed shadow-none border border-zinc-700"
-                      : "bg-[#00FF66] text-black hover:bg-[#00cc52] shadow-[0_0_15px_rgba(0,255,102,0.4)]"
-                      }`}
-                  >
-                    {visibleCount >= blogs.length ? "All Blogs Loaded" : "Load More Blogs"}
-                  </button>
+                  {visibleCount < blogs.length ? (
+                    <button
+                      onClick={() => setVisibleCount(prev => prev + 8)}
+                      className="px-8 py-3 mt-4 font-semibold rounded-full transition-colors bg-[#00FF66] text-black hover:bg-[#00cc52] shadow-[0_0_15px_rgba(0,255,102,0.4)]"
+                    >
+                      Load More Blogs
+                    </button>
+                  ) : (
+                    <button
+                      onClick={() => setVisibleCount(8)}
+                      className="px-8 py-3 mt-4 font-semibold rounded-full transition-colors bg-zinc-800 text-white hover:bg-zinc-700 border border-zinc-700 shadow-xl"
+                    >
+                      Show Less
+                    </button>
+                  )}
                 </motion.div>
               )}
             </>
@@ -277,10 +299,10 @@ const BlogPage = () => {
               exit={{ y: 40, opacity: 0, scale: 0.96 }}
               onClick={e => e.stopPropagation()}
             >
-              <div className="flex items-center justify-between px-6 py-4 border-b border-zinc-800">
-                <h2 className="text-lg font-bold text-white">Add New Blog</h2>
-                <button onClick={() => setShowModal(false)} className="text-zinc-400 hover:text-white transition">
-                  <X size={20} />
+              <div className="flex items-center justify-between px-10 py-8 border-b border-white/5">
+                <h2 className="text-2xl font-black uppercase tracking-tight italic">Content <span className="text-[#00FF66]">Creation</span></h2>
+                <button onClick={() => setShowModal(false)} className="bg-white/5 p-3 rounded-full hover:bg-white/10 hover:text-[#00FF66] transition-all">
+                  <X size={24} />
                 </button>
               </div>
 
@@ -290,13 +312,25 @@ const BlogPage = () => {
                   <input required className={inputCls} placeholder="Blog Title" value={blogTitle} onChange={e => setBlogTitle(e.target.value)} />
                 </div>
                 <div>
-                  <label className={labelCls}>Excerpt</label>
-                  <textarea rows={2} className={inputCls} placeholder="Short preview..." value={blogExcerpt} onChange={e => setBlogExcerpt(e.target.value)} />
+                  <label className={labelCls}>Excerpt (Supports Paragraphs, Headings, Lists)</label>
+                  <textarea
+                    rows={5}
+                    className={inputCls}
+                    placeholder="Briefly summarize the post... "
+                    value={blogExcerpt}
+                    onChange={e => setBlogExcerpt(e.target.value)}
+                  />
                 </div>
                 <div className="grid grid-cols-1 gap-4">
                   <div>
                     <label className={labelCls}>Author</label>
                     <input className={inputCls} placeholder="Author Name" value={blogAuthor} onChange={e => setBlogAuthor(e.target.value)} />
+                  </div>
+                </div>
+                <div className="grid grid-cols-1 gap-4">
+                  <div>
+                    <label className={labelCls}>Category</label>
+                    <input className={inputCls} placeholder="category..." value={blogCategory} onChange={e => setBlogCategory(e.target.value)} />
                   </div>
                 </div>
                 <div>
