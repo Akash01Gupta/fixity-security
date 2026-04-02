@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { useDispatch } from "react-redux";
 import { setRole } from "@/store/authSlice";
 import { Eye, EyeOff } from "lucide-react"; // 👈 import icons
@@ -34,8 +35,9 @@ export default function AdminLogin() {
       } else {
         localStorage.setItem("role", data.role);
         localStorage.setItem("admin_token", data.token);
+        document.cookie = `admin_token=${data.token}; path=/; max-age=86400;`;
         dispatch(setRole({ role: data.role, token: data.token }));
-        router.replace("/");
+        router.replace("/dashboard");
       }
     } catch (err) {
       setError("Something went wrong");
@@ -104,9 +106,12 @@ export default function AdminLogin() {
               <input type="checkbox" className="accent-[#00FF66]" />
               Remember me
             </label>
-            <span className="text-[#00FF66] cursor-pointer hover:underline">
+            <Link
+              href="/forgot-password"
+              className="text-[#00FF66] hover:underline text-sm"
+            >
               Forgot Password?
-            </span>
+            </Link>
           </div>
 
           {/* BUTTON */}

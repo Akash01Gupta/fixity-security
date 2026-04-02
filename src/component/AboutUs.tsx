@@ -25,7 +25,7 @@ export default function AboutUsPage() {
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.7 }}
-          className="text-3xl sm:text-4xl md:text-6xl font-bold mb-6 text-center bg-gradient-to-r from-[#B6FF00] to-[#00FF66] bg-clip-text text-transparent"
+          className="text-2xl sm:text-3xl md:text-4xl font-bold mb-6 text-center bg-gradient-to-r from-[#B6FF00] to-[#00FF66] bg-clip-text text-transparent"
         >
           About Fixity Security
         </motion.h1>

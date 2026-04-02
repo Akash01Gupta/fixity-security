@@ -1,8 +1,6 @@
 import type { Metadata } from "next";
 import { ReduxProvider } from "@/store/provider";
-import Navbar from "@/component/Navbar";
-import Footer from "@/component/Footer";
-import { Toaster } from "react-hot-toast";
+import LayoutWrapper from "@/component/LayoutWrapper";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -19,27 +17,9 @@ export default function RootLayout({
     <html lang="en">
       <body className="bg-black text-white">
         <ReduxProvider>
-          <Navbar />
-
-          <main className="pt-20 min-h-screen relative">
+          <LayoutWrapper>
             {children}
-
-            <Toaster
-              position="top-center" 
-              reverseOrder={false}
-              toastOptions={{
-                style: {
-                  background: "#000",
-                  color: "#00FF66",
-                  border: "1px solid #1F3D2B",
-                  minWidth: "300px",
-                  textAlign: "center",
-                },
-              }}
-            />
-          </main>
-
-          <Footer />
+          </LayoutWrapper>
         </ReduxProvider>
       </body>
     </html>

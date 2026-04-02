@@ -171,7 +171,7 @@ export default function ContactUs() {
 
     try {
       const res = await fetch(
-        "https://fixi-backend.vercel.app/protected/appointment_registration",
+        "/api/contact",
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },

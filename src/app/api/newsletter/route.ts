@@ -49,8 +49,26 @@ export async function POST(req: Request) {
   }
 }
 
-export async function GET() {
-  // Optional: Allow admin to see subscribers if token verified
-  // For now, just return a generic restricted message
-  return NextResponse.json({ error: "Access Restricted" }, { status: 403 });
+import jwt from "jsonwebtoken";
+const SECRET = process.env.JWT_SECRET || "supersecretkey";
+
+function verifyToken(req: Request) {
+  const auth = req.headers.get("authorization");
+  if (!auth) return null;
+  const token = auth.split(" ")[1];
+  try {
+    return jwt.verify(token, SECRET as string);
+  } catch {
+    return null;
+  }
+}
+
+export async function GET(req: Request) {
+  const payload = verifyToken(req);
+  if (!payload || (payload as any).role !== "admin") {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  const data = getData();
+  return NextResponse.json({ newsletters: data.newsletters || [] });
 }

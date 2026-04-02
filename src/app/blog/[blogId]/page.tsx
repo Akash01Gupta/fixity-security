@@ -26,7 +26,7 @@ interface Blog {
   id: string
   title: string
   content: string
-  excerpt: string
+  excerpt: string[]
   date: string
   author: string
   category: string
@@ -44,7 +44,7 @@ export default function BlogDetailPage() {
   const [loading, setLoading] = useState(true)
   const [headings, setHeadings] = useState<{ id: string; text: string }[]>([])
   const [relatedBlogs, setRelatedBlogs] = useState<Blog[]>([])
-  
+
   // Newsletter Logic
   const [email, setEmail] = useState("")
   const [isSubscribing, setIsSubscribing] = useState(false)
@@ -123,11 +123,11 @@ export default function BlogDetailPage() {
 
     setIsSubscribing(true);
     try {
-      const res = await axios.post("/api/newsletter", { 
-        email, 
-        source: `blog_detail_${blogId}` 
+      const res = await axios.post("/api/newsletter", {
+        email,
+        source: `blog_detail_${blogId}`
       });
-      
+
       if (res.status === 201 || res.data.status === "exists") {
         Swal.fire({
           title: res.data.status === "exists" ? "Already Subscribed!" : "Subscribed!",
@@ -330,22 +330,38 @@ export default function BlogDetailPage() {
             className="blog-content"
             style={{
               color: '#cbd5e1',
-              lineHeight: '2.1',
-              fontSize: '1.25rem',
-              letterSpacing: '0.02em'
+              lineHeight: '2',
+              fontSize: '1.2rem',
+              letterSpacing: '0.01em'
             }}
             dangerouslySetInnerHTML={{ __html: blog.content }}
           />
 
           <style jsx>{`
-            .blog-excerpt :global(p) { margin-bottom: 2rem; line-height: 1.8; color: #cbd5e1; font-weight: 500; }
-            .blog-excerpt :global(h3) { font-size: 1.8rem; color: #ffffff; margin-bottom: 1.5rem; font-weight: 900; letter-spacing: -0.02em; }
-            .blog-excerpt :global(ul) { list-style-type: none; margin-bottom: 2.5rem; padding-left: 0.5rem; }
-            .blog-excerpt :global(li) { margin-bottom: 1rem; position: relative; padding-left: 2rem; font-size: 1.15rem; color: #cbd5e1; font-weight: 500; line-height: 1.8; }
-            .blog-excerpt :global(li::before) { content: "•"; position: absolute; left: 0; color: #00FF66; font-weight: 900; font-size: 1.5rem; line-height: 1; }
+            /* --- EXCERPT STYLING --- */
+            .blog-excerpt {
+              position: relative;
+              padding: 2.5rem 0 2.5rem 3rem;
+              margin-bottom: 5rem;
+              border-left: 4px solid #00FF66;
+            }
+            .blog-excerpt :global(p) { margin-bottom: 2rem; line-height: 1.8; color: #cbd5e1; font-weight: 500; font-size: 1.25rem; }
+            .blog-excerpt :global(h2), .blog-excerpt :global(h3) { font-size: 2rem; color: #ffffff; margin-top: 3rem; margin-bottom: 1.5rem; font-weight: 900; letter-spacing: -0.02em; }
+            .blog-excerpt :global(h4) { font-size: 1.5rem; color: #00FF66; margin-top: 2.5rem; margin-bottom: 1.2rem; font-weight: 800; }
+            
+            .blog-excerpt :global(ul) { list-style-type: none; margin-bottom: 2.5rem; padding-left: 0; }
+            .blog-excerpt :global(li) { margin-bottom: 1.2rem; position: relative; padding-left: 2rem; font-size: 0.875rem; color: #cbd5e1; font-weight: 500; line-height: 1.7; }
+            .blog-excerpt :global(li::before) { content: "→"; position: absolute; left: 0; color: #00FF66; font-weight: 900; font-size: 1.1rem; }
+            
+            /* Nested Lists in Excerpt */
+            .blog-excerpt :global(ul ul) { margin-top: 0.8rem; margin-bottom: 0.5rem; padding-left: 1.5rem; }
+            .blog-excerpt :global(ul ul li) { font-size: 0.75rem; opacity: 0.9; margin-bottom: 0.8rem; }
+            .blog-excerpt :global(ul ul li::before) { content: "•"; font-size: 1.3rem; top: -1px; }
+
             .blog-excerpt :global(strong) { color: #ffffff; font-weight: 900; }
             .blog-excerpt :global(em) { color: #00FF66; font-style: italic; }
             
+            /* --- CONTENT STYLING --- */
             .blog-content {
               font-variant-numeric: tabular-nums;
               text-rendering: optimizeLegibility;
@@ -354,61 +370,79 @@ export default function BlogDetailPage() {
 
             .blog-content :global(h1), 
             .blog-content :global(h2), 
-            .blog-content :global(h3) {
+            .blog-content :global(h3),
+            .blog-content :global(h4) {
               color: #ffffff;
               font-weight: 900;
-              margin-top: 8rem;
-              margin-bottom: 3.5rem;
-              line-height: 1.1;
-              letter-spacing: -0.05em;
+              margin-top: 6rem;
+              margin-bottom: 2.5rem;
+              line-height: 1.2;
+              letter-spacing: -0.04em;
             }
-            .blog-content :global(h1) { font-size: 4rem; border-bottom: 2px solid rgba(0,255,102,0.1); padding-bottom: 3rem; }
-            .blog-content :global(h2) { font-size: 3.2rem; color: #00FF66; }
-            .blog-content :global(h3) { font-size: 2.6rem; text-decoration: underline; text-decoration-color: rgba(0,255,102,0.3); text-underline-offset: 12px; }
+            .blog-content :global(h1) { font-size: 3.5rem; border-bottom: 2px solid rgba(0,255,102,0.1); padding-bottom: 2rem; }
+            .blog-content :global(h2) { font-size: 2.8rem; color: #00FF66; position: relative; }
+            .blog-content :global(h3) { font-size: 2.2rem; display: flex; items-center: center; gap: 0.5rem; }
+            .blog-content :global(h3::before) { content: "#"; color: #00FF66; opacity: 0.5; }
+            .blog-content :global(h4) { font-size: 1.8rem; color: #cbd5e1; border-left: 4px solid rgba(0,255,102,0.3); padding-left: 1.5rem; }
             
             .blog-content :global(p) { 
-               margin-bottom: 3.5rem; 
+               margin-bottom: 2.5rem; 
                opacity: 0.95;
-               line-height: 2.2;
+               line-height: 2;
                font-weight: 500;
                color: #cbd5e1;
+               font-size: 1.15rem;
             }
             
-            .blog-content :global(ul) { list-style-type: none; margin-bottom: 5.5rem; padding-left: 2rem; }
-            .blog-content :global(ol) { list-style-type: decimal; margin-bottom: 5.5rem; padding-left: 3.5rem; color: #00FF66; font-weight: 900; }
-            
+            /* List Reset & Base */
+            .blog-content :global(ul), .blog-content :global(ol) { margin-bottom: 4rem; padding-left: 0; }
             .blog-content :global(li) { 
-               margin-bottom: 2.5rem; 
-               padding-left: 2rem; 
+               margin-bottom: 1.5rem; 
+               padding-left: 2.5rem; 
                position: relative;
                color: #cbd5e1;
                font-weight: 500;
                line-height: 1.8;
+               font-size: 0.875rem;
             }
-            
-            .blog-content :global(ul li::before) {
+
+            /* Unordered Lists */
+            .blog-content :global(ul > li::before) {
                content: "→";
                position: absolute;
-               left: -2.5rem;
+               left: 0;
                color: #00FF66;
                font-weight: 900;
-               font-size: 1.4rem;
+               font-size: 1.2rem;
+               line-height: 1;
             }
+
+            /* Nested Lists (Subpoints) */
+            .blog-content :global(ul ul) { margin-top: 1rem; margin-bottom: 1rem; padding-left: 1.5rem; border-left: 1px solid rgba(255,255,255,0.05); }
+            .blog-content :global(ul ul li) { font-size: 0.75rem; opacity: 0.85; margin-bottom: 1rem; }
+            .blog-content :global(ul ul li::before) { content: "•"; font-size: 1.3rem; top: -2px; }
+
+            /* Ordered Lists */
+            .blog-content :global(ol) { list-style-type: decimal; padding-left: 2.5rem; }
+            .blog-content :global(ol li) { padding-left: 0.5rem; color: #cbd5e1; }
+            .blog-content :global(ol li::marker) { color: #00FF66; font-weight: 900; font-size: 1.2rem; }
             
-            .blog-content :global(strong) { color: #ffffff; font-weight: 900; letter-spacing: -0.01em; }
+            .blog-content :global(strong) { color: #ffffff; font-weight: 900; }
             .blog-content :global(em) { color: #00FF66; opacity: 1; font-weight: 700; }
             .blog-content :global(u) { text-decoration-color: #00FF66; text-underline-offset: 10px; text-decoration-thickness: 3px; }
             
+            /* Enhanced Blockquote */
             .blog-content :global(blockquote) { 
-              border-left: 14px solid #00FF66; 
-              padding: 5.5rem 7rem; 
-              margin: 8rem 0; 
+              border-left: 8px solid #00FF66; 
+              padding: 4rem 5rem; 
+              margin: 6rem 0; 
               background: linear-gradient(135deg, #0B1220 0%, #030712 100%);
-              border-radius: 0 4.5rem 4.5rem 0;
+              border-radius: 0 3rem 3rem 0;
               color: #f1f5f9;
-              font-size: 2.2rem;
-              line-height: 1.5;
-              box-shadow: 60px 60px 140px rgba(0,0,0,0.7);
+              font-size: 1.8rem;
+              font-style: italic;
+              line-height: 1.6;
+              box-shadow: 40px 40px 100px rgba(0,0,0,0.5);
               position: relative;
               overflow: hidden;
             }
@@ -416,39 +450,50 @@ export default function BlogDetailPage() {
             .blog-content :global(blockquote::after) {
                content: '"';
                position: absolute;
-               top: -3rem;
-               right: 3rem;
-               font-size: 20rem;
+               top: -2rem;
+               right: 2rem;
+               font-size: 15rem;
                color: #00FF66;
-               opacity: 0.08;
+               opacity: 0.05;
                font-family: serif;
                line-height: 1;
                pointer-events: none;
             }
 
-            /* Professional Punctuation Styling */
-            .blog-content :global(abbr), 
-            .blog-content :global(acronym) {
-               text-decoration: underline dotted #00FF66;
-               cursor: help;
+            /* Summary Box / Highlight */
+            .blog-content :global(.summary-box) {
+              background: rgba(0, 255, 102, 0.03);
+              border: 1px solid rgba(0, 255, 102, 0.2);
+              border-radius: 2.5rem;
+              padding: 4rem;
+              margin: 6rem 0;
+              position: relative;
+            }
+            .blog-content :global(.summary-box)::before {
+              content: "KEY TAKEAWAY";
+              position: absolute;
+              top: -12px;
+              left: 3rem;
+              background: #00FF66;
+              color: #000;
+              padding: 4px 16px;
+              border-radius: 8px;
+              font-size: 0.7rem;
+              font-weight: 900;
+              letter-spacing: 0.1em;
             }
 
             .blog-content :global(pre) {
               background: #0B1220;
-              padding: 4rem;
-              border: 1px solid rgba(0,255,102,0.15);
-              border-radius: 40px;
-              margin: 7rem 0;
+              padding: 3rem;
+              border: 1px solid rgba(0,255,102,0.1);
+              border-radius: 30px;
+              margin: 5rem 0;
               overflow-x: auto;
-              box-shadow: inset 0 0 100px rgba(0,0,0,0.8);
-              font-family: 'JetBrains Mono', 'Fira Code', monospace;
-              font-size: 1.1rem;
-              line-height: 1.8;
+              font-family: 'JetBrains Mono', monospace;
+              font-size: 1rem;
+              line-height: 1.7;
             }
-
-            /* Typographic Polish for Special Marks */
-            .blog-content :global(.mark-exclamation) { color: #00FF66; font-weight: 900; }
-            .blog-content :global(.mark-quote) { color: #00FF66; }
           `}</style>
 
           {/* Tags */}
@@ -537,7 +582,7 @@ export default function BlogDetailPage() {
                 placeholder="Your Email Address"
                 className="w-full bg-black/50 border border-slate-800 rounded-2xl py-4 px-5 text-sm font-medium focus:border-[#00FF66] focus:ring-1 focus:ring-[#00FF66]/20 outline-none transition-all pr-14 disabled:opacity-50"
               />
-              <button 
+              <button
                 type="submit"
                 disabled={isSubscribing}
                 className="absolute right-2 top-2 p-3 bg-[#00FF66] text-black rounded-xl hover:scale-105 active:scale-95 transition-all shadow-lg shadow-[#00FF66]/20 disabled:opacity-50 disabled:hover:scale-100"

@@ -1,18 +1,18 @@
 "use client";
 
-import React, { useEffect, useState, useRef } from "react";
+import React, { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import axios from "axios";
-import { useSelector } from "react-redux";
-import type { RootState } from "@/store/store";
-import { ArrowBigRight, ArrowBigRightDashIcon, ArrowRight, ChevronRight, Plus, X, Eye, Calendar } from "lucide-react";
+import { ArrowBigRight, ArrowBigRightDashIcon, ArrowRight, ChevronRight, Eye, Calendar } from "lucide-react";
 import { useRouter } from "next/navigation";
-import Swal from "sweetalert2";
 
 interface Blog {
   id: string;
   title: string;
-  excerpt: string;
+  excerpt: {
+    heading: string;
+    content: string;
+  }[];
   date: string;
   author: string;
   category: string;
@@ -25,144 +25,60 @@ const BlogPage = () => {
   const [loading, setLoading] = useState(true);
   const [visibleCount, setVisibleCount] = useState(8);
 
-  // Admin stuff
-  const role = useSelector((state: RootState) => state.auth.role);
-  const isAdmin = role === "admin";
-  const [showModal, setShowModal] = useState(false);
   const router = useRouter();
 
-  // Form states
-  const fileRef = useRef<HTMLInputElement>(null);
-  const [blogTitle, setBlogTitle] = useState("");
-  const [blogExcerpt, setBlogExcerpt] = useState("");
-  const [blogAuthor, setBlogAuthor] = useState("");
-  const [blogCategory, setBlogCategory] = useState("");
-  const [blogDate, setBlogDate] = useState("");
-  const [blogViews, setBlogViews] = useState("");
-  const [blogImage, setBlogImage] = useState<File | null>(null);
-  const [isSaving, setIsSaving] = useState(false);
+const fetchBlogs = async () => {
+  try {
+    setLoading(true);
+    const res = await axios.get("/api/content");
 
-  const fetchBlogs = async () => {
-    try {
-      setLoading(true);
-      const res = await axios.get("/api/content");
-      if (res.data?.blogs) {
-        setBlogs(res.data.blogs);
-      }
-    } catch (err) {
-      console.error("Failed to fetch blogs:", err);
-    } finally {
-      setLoading(false);
+    if (res.data?.blogs) {
+      const formatted = res.data.blogs.map((b: any) => {
+        let parsedExcerpt = [];
+
+        if (typeof b.excerpt === "string") {
+          try {
+            const parsed = JSON.parse(b.excerpt);
+
+            // If valid JSON array
+            if (Array.isArray(parsed)) {
+              parsedExcerpt = parsed;
+            } else {
+              // fallback if parsed but not array
+              parsedExcerpt = [
+                { heading: "Overview", content: b.excerpt }
+              ];
+            }
+          } catch (err) {
+            //  NOT JSON → fallback
+            parsedExcerpt = [
+              { heading: "Overview", content: b.excerpt }
+            ];
+          }
+        } else if (Array.isArray(b.excerpt)) {
+          parsedExcerpt = b.excerpt;
+        }
+
+        return {
+          ...b,
+          excerpt: parsedExcerpt
+        };
+      });
+
+      setBlogs(formatted);
     }
-  };
+  } catch (err) {
+    console.error("Failed to fetch blogs:", err);
+  } finally {
+    setLoading(false);
+  }
+};
 
   useEffect(() => {
     fetchBlogs();
   }, []);
 
-  const handleAddBlog = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!blogTitle) return alert("Title is required");
 
-    setIsSaving(true);
-    try {
-      const token = localStorage.getItem("admin_token") || localStorage.getItem("token") || "";
-      const formData = new FormData();
-      formData.append("blog[title]", blogTitle.trim());
-      formData.append("blog[excerpt]", blogExcerpt.trim());
-      formData.append("blog[author]", blogAuthor.trim());
-      formData.append("blog[category]", blogCategory.trim());
-      formData.append("blog[views]", blogViews.trim() || "0");
-      // date removed, server auto gen
-      if (blogImage) formData.append("blog[image]", blogImage);
-
-      const res = await axios.put("/api/content", formData, {
-        headers: { Authorization: `Bearer ${token}`, "Content-Type": "multipart/form-data" }
-      });
-
-      if (res.data?.success) {
-        setShowModal(false);
-        setBlogTitle("");
-        setBlogExcerpt("");
-        setBlogAuthor("");
-        setBlogCategory("");
-        setBlogDate("");
-        setBlogViews("");
-        setBlogImage(null);
-        await fetchBlogs();
-      } else {
-        alert("Error saving blog: " + res.data?.error);
-      }
-    } catch (err: any) {
-      alert("Error saving blog: " + (err?.response?.data?.error || err.message));
-    } finally {
-      setIsSaving(false);
-    }
-  };
-
-  const handleDeleteBlog = async (e: React.MouseEvent, id: string) => {
-    e.preventDefault();
-    e.stopPropagation();
-
-    const blog = blogs.find(b => b.id === id);
-    if (!blog) return;
-
-    const { value: userInput } = await Swal.fire({
-      title: "Confirm Deletion",
-      text: `To delete this blog post, please type "${blog.title}":`,
-      input: "text",
-      inputPlaceholder: blog.title,
-      showCancelButton: true,
-      confirmButtonColor: "#d33",
-      cancelButtonColor: "#3085d6",
-      confirmButtonText: "Delete Blog",
-      background: "#18181b",
-      color: "#fff",
-      inputValidator: (value) => {
-        if (!value) return "Title is required!";
-        if (value !== blog.title) return "Title mismatch!";
-      }
-    });
-
-    if (userInput) {
-      try {
-        const token = localStorage.getItem("admin_token") || localStorage.getItem("token") || "";
-        const res = await axios.delete(`/api/content?blogId=${id}&title=${encodeURIComponent(userInput)}`, {
-          headers: { Authorization: `Bearer ${token}` }
-        });
-        if (res.data?.success) {
-          setBlogs(prev => prev.filter(b => b.id !== id));
-          Swal.fire({
-            title: "Deleted!",
-            text: "Blog post has been removed.",
-            icon: "success",
-            background: "#18181b",
-            color: "#fff",
-            confirmButtonColor: "#00FF66"
-          });
-        } else {
-          Swal.fire({
-            title: "Error!",
-            text: "Error deleting blog.",
-            icon: "error",
-            background: "#18181b",
-            color: "#fff"
-          });
-        }
-      } catch (err: any) {
-        Swal.fire({
-          title: "Error!",
-          text: err.response?.data?.error || err.message,
-          icon: "error",
-          background: "#18181b",
-          color: "#fff"
-        });
-      }
-    }
-  };
-
-  const inputCls = "w-full bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-2.5 text-white text-sm placeholder-zinc-500 focus:outline-none focus:border-[#00FF66] transition";
-  const labelCls = "block text-xs font-medium text-zinc-400 mb-1";
 
   return (
     <main className="min-h-screen bg-black text-white py-24 px-6 relative">
@@ -173,16 +89,7 @@ const BlogPage = () => {
             <h2 className="text-3xl sm:text-4xl font-bold text-center bg-gradient-to-r from-[#B6FF00] to-[#00FF66] bg-clip-text text-transparent">
               Our Blog Posts
             </h2>
-            {isAdmin && (
-              <motion.button
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                onClick={() => setShowModal(true)}
-                className="mt-6 mx-auto bg-[#00FF66] text-black px-6 py-2.5 rounded-full font-semibold hover:bg-[#00cc52] transition shadow-[0_0_15px_rgba(0,255,102,0.4)] flex items-center justify-center gap-2"
-              >
-                <Plus size={18} /> Add New Blog
-              </motion.button>
-            )}
+
           </div>
 
           {/* Loading State */}
@@ -209,15 +116,7 @@ const BlogPage = () => {
                       onClick={() => router.push(`/blog/${blog.id}`)}
                       className="group bg-black border border-white/10 shadow-2xl p-6 rounded-[2.5rem] relative cursor-pointer hover:border-[#00FF66]/30 transition-all duration-500"
                     >
-                      {isAdmin && (
-                        <button
-                          onClick={(e) => handleDeleteBlog(e, blog.id)}
-                          className="absolute -top-1 -right-1 bg-red-500/90 text-white p-3 rounded-full hover:scale-110 active:scale-95 transition-all shadow-xl z-30"
-                          title="Delete Blog"
-                        >
-                          <X size={20} className="stroke-[3]" />
-                        </button>
-                      )}
+
                       <div className="bg-zinc-900 aspect-[1.7] rounded-[1.5rem] overflow-hidden">
                         <motion.img
                           src={blog.image ? (blog.image.startsWith("/") ? blog.image : `/${blog.image}`) : "/services/cyber_security_abstract_1_1773654503262.png"}
@@ -232,7 +131,7 @@ const BlogPage = () => {
                           {blog.title}
                         </h3>
 
-                        <div className="space-y-3 mb-8">
+                        <div className="space-y-3 mb-0">
                           <div className="flex items-center gap-2.5 text-slate-400 text-[14px] font-medium tracking-tight">
                             <Calendar size={17} className="text-[#00FF66]" />
                             {blog.date}
@@ -245,8 +144,8 @@ const BlogPage = () => {
                           </div>
                         </div>
 
-                        <div className="inline-flex items-center gap-3 text-[#00FF66] font-black text-[14px]  tracking-[0.2em] group-hover:gap-5 transition-all duration-500">
-                          LEARN MORE <ChevronRight size={18} className="stroke-[2]" />
+                        <div className="inline-flex items-center gap-3 text-[#00FF66] font-black text-[10px]  tracking-[0.2em] group-hover:gap-5 transition-all duration-500">
+                          <ChevronRight size={16} className="stroke-[2]" />
                         </div>
                       </div>
                     </motion.div>
@@ -283,79 +182,6 @@ const BlogPage = () => {
           )}
         </div>
       </div>
-
-      {/* Admin Add Blog Modal */}
-      <AnimatePresence>
-        {showModal && (
-          <motion.div
-            className="fixed inset-0 z-[100] flex items-center justify-center bg-black/70 backdrop-blur-sm p-4"
-            initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-            onClick={() => setShowModal(false)}
-          >
-            <motion.div
-              className="bg-zinc-900 border border-zinc-700 rounded-2xl w-full max-w-md max-h-[90vh] overflow-y-auto shadow-2xl"
-              initial={{ y: 40, opacity: 0, scale: 0.96 }}
-              animate={{ y: 0, opacity: 1, scale: 1 }}
-              exit={{ y: 40, opacity: 0, scale: 0.96 }}
-              onClick={e => e.stopPropagation()}
-            >
-              <div className="flex items-center justify-between px-10 py-8 border-b border-white/5">
-                <h2 className="text-2xl font-black uppercase tracking-tight italic">Content <span className="text-[#00FF66]">Creation</span></h2>
-                <button onClick={() => setShowModal(false)} className="bg-white/5 p-3 rounded-full hover:bg-white/10 hover:text-[#00FF66] transition-all">
-                  <X size={24} />
-                </button>
-              </div>
-
-              <form onSubmit={handleAddBlog} className="px-6 py-6 space-y-4">
-                <div>
-                  <label className={labelCls}>Title *</label>
-                  <input required className={inputCls} placeholder="Blog Title" value={blogTitle} onChange={e => setBlogTitle(e.target.value)} />
-                </div>
-                <div>
-                  <label className={labelCls}>Excerpt (Supports Paragraphs, Headings, Lists)</label>
-                  <textarea
-                    rows={5}
-                    className={inputCls}
-                    placeholder="Briefly summarize the post... "
-                    value={blogExcerpt}
-                    onChange={e => setBlogExcerpt(e.target.value)}
-                  />
-                </div>
-                <div className="grid grid-cols-1 gap-4">
-                  <div>
-                    <label className={labelCls}>Author</label>
-                    <input className={inputCls} placeholder="Author Name" value={blogAuthor} onChange={e => setBlogAuthor(e.target.value)} />
-                  </div>
-                </div>
-                <div className="grid grid-cols-1 gap-4">
-                  <div>
-                    <label className={labelCls}>Category</label>
-                    <input className={inputCls} placeholder="category..." value={blogCategory} onChange={e => setBlogCategory(e.target.value)} />
-                  </div>
-                </div>
-                <div>
-                  <label className={labelCls}>Image</label>
-                  <input
-                    ref={fileRef}
-                    type="file"
-                    accept="image/*"
-                    className="w-full text-sm text-zinc-400 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-zinc-700 file:text-white hover:file:bg-zinc-600 cursor-pointer"
-                    onChange={e => setBlogImage(e.target.files?.[0] || null)}
-                  />
-                </div>
-
-                <button
-                  type="submit"
-                  disabled={isSaving}
-                  className="w-full mt-4 bg-[#00FF66] text-black font-bold py-2.5 rounded-xl hover:bg-[#00cc52] transition disabled:opacity-60"
-                >
-                  {isSaving ? "Saving..." : "Publish Blog"}
-                </button>
-              </form>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
     </main>
   );
 };

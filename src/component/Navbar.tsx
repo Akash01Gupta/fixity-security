@@ -37,6 +37,8 @@ export default function Navbar() {
 
   const logoutAdmin = () => {
     localStorage.removeItem("role");
+    localStorage.removeItem("admin_token");
+    document.cookie = "admin_token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
     router.replace("/");
   };
 
@@ -104,10 +106,15 @@ export default function Navbar() {
           </div>
 
           {isMounted && isAdmin && (
-            <button onClick={logoutAdmin} className="flex items-center gap-2 text-sm text-red-400 hover:text-red-500">
-              <LogOut className="w-4 h-4" />
-              Logout
-            </button>
+            <>
+              <Link href="/dashboard" className="text-[#00FF66] font-semibold hover:underline transition">
+                Dashboard
+              </Link>
+              <button onClick={logoutAdmin} className="flex items-center gap-2 text-sm text-red-400 hover:text-red-500 transition">
+                <LogOut className="w-4 h-4" />
+                Logout
+              </button>
+            </>
           )}
 
         </div>
