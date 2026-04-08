@@ -34,32 +34,85 @@ function verifyToken(req: Request) {
 export async function POST(req: Request) {
   try {
     const body = await req.json();
-    const { name, email, phone, company, specific } = body;
-    
+    let { name, email, phone, company, specific } = body;
+
+    // Trim values
+    name = name?.trim();
+    email = email?.trim().toLowerCase();
+    phone = phone?.trim();
+    company = company?.trim();
+    specific = specific?.trim();
+
+    const emailRegex =
+      /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+    const phoneRegex = /^[6-9]\d{9}$/;
+
+    // Required fields
     if (!name || !email || !phone || !specific) {
-      return NextResponse.json({ success: false, message: "Missing required fields" }, { status: 400 });
+      return NextResponse.json(
+        { success: false, message: "Missing required fields" },
+        { status: 400 }
+      );
+    }
+
+    // Name validation
+    if (name.length < 2) {
+      return NextResponse.json(
+        { success: false, message: "Invalid name" },
+        { status: 400 }
+      );
+    }
+
+    // Email validation
+    if (!emailRegex.test(email)) {
+      return NextResponse.json(
+        { success: false, message: "Invalid email format" },
+        { status: 400 }
+      );
+    }
+
+    // Phone validation
+    if (!phoneRegex.test(phone)) {
+      return NextResponse.json(
+        { success: false, message: "Invalid phone number" },
+        { status: 400 }
+      );
+    }
+
+    // Message validation
+    if (specific.length < 10) {
+      return NextResponse.json(
+        { success: false, message: "Message too short" },
+        { status: 400 }
+      );
     }
 
     const newContact = {
       _id: crypto.randomUUID(),
       name,
       email,
-      phone,
+      phone: Number(phone),
       company: company || "",
       specific,
-      createdAt: new Date().toISOString()
+      createdAt: new Date().toISOString(),
     };
-    
+
     const data = getData();
     if (!data.contacts) data.contacts = [];
+
     data.contacts.push(newContact);
-    
     saveData(data);
-    
-    return NextResponse.json({ success: true, message: "Message sent successfully!" });
+
+    return NextResponse.json({
+      success: true,
+      message: "Message sent successfully!",
+    });
   } catch (error) {
     console.error("Contact API POST Error:", error);
-    return NextResponse.json({ success: false, message: "Server error" }, { status: 500 });
+    return NextResponse.json(
+      { success: false, message: "Server error" },
+      { status: 500 }
+    );
   }
 }
 
